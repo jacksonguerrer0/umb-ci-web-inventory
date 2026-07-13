@@ -18,7 +18,7 @@ coverage.xml
 .pytest_cache/
 
 # Material de trabajo local (no va al repo)
-docs/tdd/
+docs
 
 # IDE / SO
 .vscode/
