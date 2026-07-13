@@ -35,7 +35,7 @@ def list_products():
 @api.post("/products")
 def create_product():
     product = _service().create_product(_json_body())
-    return jsonify(product.to_dict()), 500
+    return jsonify(product.to_dict()), 201
 
 
 @api.get("/products/low-stock")
