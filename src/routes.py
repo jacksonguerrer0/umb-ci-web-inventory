@@ -38,6 +38,18 @@ def create_product():
     return jsonify(product.to_dict()), 201
 
 
+@api.get("/products/low-stock")
+def low_stock():
+    raw = request.args.get("threshold")
+    threshold = None
+    if raw is not None:
+        if not raw.isdigit():
+            raise ValidationError("'threshold' debe ser un entero no negativo")
+        threshold = int(raw)
+    products = _service().get_low_stock(threshold)
+    return jsonify([p.to_dict() for p in products]), 200
+
+
 @api.get("/products/<int:product_id>")
 def get_product(product_id: int):
     return jsonify(_service().get_product(product_id).to_dict()), 200
@@ -53,3 +65,10 @@ def update_product(product_id: int):
 def delete_product(product_id: int):
     _service().delete_product(product_id)
     return "", 204
+
+
+@api.patch("/products/<int:product_id>/stock")
+def adjust_stock(product_id: int):
+    body = _json_body()
+    product = _service().adjust_stock(product_id, body.get("delta"))
+    return jsonify(product.to_dict()), 200

@@ -94,3 +94,26 @@ class ProductService:
 
     def delete_product(self, product_id: int) -> None:
         self._repo.delete(product_id)
+
+    def adjust_stock(self, product_id: int, delta) -> Product:
+        if isinstance(delta, bool) or not isinstance(delta, int):
+            raise ValidationError("'delta' debe ser un entero")
+        if delta == 0:
+            raise ValidationError("'delta' no puede ser cero")
+        product = self._repo.get(product_id)
+        new_stock = product.stock + delta
+        if new_stock < 0:
+            raise ValidationError(
+                f"Stock insuficiente: hay {product.stock} unidades y se pidió retirar {-delta}"
+            )
+        product.stock = new_stock
+        saved = self._repo.save(product)
+        assert saved.stock >= 0, "Postcondición violada: stock negativo tras ajuste"
+        return saved
+
+    def get_low_stock(self, threshold: int | None = None) -> list[Product]:
+        if threshold is None:
+            threshold = self._low_stock_threshold
+        if isinstance(threshold, bool) or not isinstance(threshold, int) or threshold < 0:
+            raise ValidationError("'threshold' debe ser un entero no negativo")
+        return [p for p in self._repo.list_all() if p.stock <= threshold]
