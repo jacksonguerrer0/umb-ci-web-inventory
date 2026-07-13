@@ -143,3 +143,71 @@ class TestReadUpdateDelete:
     def test_delete_missing_product_raises_not_found(self, service):
         with pytest.raises(NotFoundError):
             service.delete_product(999)
+
+
+class TestAdjustStock:
+
+    def test_positive_delta_increases_stock(self, service, sample_product):
+        updated = service.adjust_stock(sample_product.id, 5)
+        assert updated.stock == 25
+
+    def test_negative_delta_decreases_stock(self, service, sample_product):
+        updated = service.adjust_stock(sample_product.id, -8)
+        assert updated.stock == 12
+
+    def test_consecutive_adjustments_accumulate(self, service, sample_product):
+        service.adjust_stock(sample_product.id, -5)
+        service.adjust_stock(sample_product.id, 3)
+        assert service.get_product(sample_product.id).stock == 18
+
+    def test_cannot_leave_stock_negative(self, service, sample_product):
+        with pytest.raises(ValidationError, match="Stock insuficiente"):
+            service.adjust_stock(sample_product.id, -21)
+
+    def test_delta_exactly_to_zero_is_allowed(self, service, sample_product):
+        updated = service.adjust_stock(sample_product.id, -20)
+        assert updated.stock == 0
+
+    def test_zero_delta_is_rejected(self, service, sample_product):
+        with pytest.raises(ValidationError):
+            service.adjust_stock(sample_product.id, 0)
+
+    def test_non_integer_delta_is_rejected(self, service, sample_product):
+        for bad_delta in ("5", 2.5, None, True):
+            with pytest.raises(ValidationError):
+                service.adjust_stock(sample_product.id, bad_delta)
+
+    def test_adjust_missing_product_raises_not_found(self, service):
+        with pytest.raises(NotFoundError):
+            service.adjust_stock(999, 5)
+
+
+class TestLowStock:
+
+    @pytest.fixture()
+    def inventory(self, service):
+        service.create_product({"name": "Pan", "price": 1.0, "stock": 2})
+        service.create_product({"name": "Leche", "price": 1.5, "stock": 5})
+        service.create_product({"name": "Queso", "price": 3.0, "stock": 30})
+        return service
+
+    def test_uses_configured_threshold_by_default(self, inventory):
+        names = [p.name for p in inventory.get_low_stock()]
+        assert names == ["Pan", "Leche"]
+
+    def test_custom_threshold_overrides_default(self, inventory):
+        names = [p.name for p in inventory.get_low_stock(threshold=2)]
+        assert names == ["Pan"]
+
+    def test_threshold_zero_only_matches_out_of_stock(self, inventory):
+        inventory.create_product({"name": "Sal", "price": 0.5, "stock": 0})
+        names = [p.name for p in inventory.get_low_stock(threshold=0)]
+        assert names == ["Sal"]
+
+    def test_empty_inventory_returns_empty_list(self, service):
+        assert service.get_low_stock() == []
+
+    def test_invalid_threshold_is_rejected(self, inventory):
+        for bad in (-1, "5", 2.5, True):
+            with pytest.raises(ValidationError):
+                inventory.get_low_stock(threshold=bad)

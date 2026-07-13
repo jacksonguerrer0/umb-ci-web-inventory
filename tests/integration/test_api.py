@@ -84,6 +84,36 @@ class TestProductsCrud:
         assert client.get("/api/products/1").status_code == 404
 
 
+class TestStockEndpoints:
+    def test_adjust_stock_via_patch(self, client):
+        _create(client)
+        response = client.patch("/api/products/1/stock", json={"delta": -5})
+        assert response.status_code == 200
+        assert response.get_json()["stock"] == 15
+
+    def test_adjust_stock_below_zero_returns_400(self, client):
+        _create(client)
+        response = client.patch("/api/products/1/stock", json={"delta": -50})
+        assert response.status_code == 400
+        assert "Stock insuficiente" in response.get_json()["error"]
+
+    def test_adjust_stock_without_delta_returns_400(self, client):
+        _create(client)
+        response = client.patch("/api/products/1/stock", json={})
+        assert response.status_code == 400
+
+    def test_low_stock_endpoint_with_custom_threshold(self, client):
+        _create(client)
+        _create(client, {"name": "Pan", "price": 1.0, "stock": 2})
+        response = client.get("/api/products/low-stock?threshold=3")
+        assert response.status_code == 200
+        assert [p["name"] for p in response.get_json()] == ["Pan"]
+
+    def test_low_stock_with_invalid_threshold_returns_400(self, client):
+        response = client.get("/api/products/low-stock?threshold=abc")
+        assert response.status_code == 400
+
+
 class TestApiKeySecurity:
     class SecuredConfig(TestingConfig):
         API_KEY = "secreto-123"
