@@ -1,0 +1,50 @@
+[project]
+name = "inventory-api"
+version = "0.1.0"
+description = "Servicio REST de inventario con Flask"
+requires-python = ">=3.10"
+dependencies = [
+    "flask==3.0.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==8.2.2",
+    "pytest-cov==5.0.0",
+    "pylint==3.2.5",
+]
+
+[tool.uv]
+# es una aplicación, no un paquete instalable
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["src", "config"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+precision = 1
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.pylint.main]
+py-version = "3.10"
+ignore = ["tests"]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint."messages control"]
+disable = [
+    "too-few-public-methods",
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+]

@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Cobertura (htmlcov/ no se ignora: se entrega como evidencia)
+.coverage
+.coverage.*
+coverage.xml
+.pytest_cache/
+
+# Material de trabajo local (no va al repo)
+docs/tdd/
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+
+# Variables de entorno
+.env

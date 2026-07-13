@@ -1,0 +1,5 @@
+# compatibilidad con pip; la fuente de verdad es pyproject.toml + uv.lock
+flask==3.0.3
+pytest==8.2.2
+pytest-cov==5.0.0
+pylint==3.2.5
