@@ -67,4 +67,4 @@ uv run pylint src config --fail-under=9.5                 # análisis estático
 
 ## CI/CD
 
-Cada push a `main` ejecuta el pipeline de GitHub Actions con 6 stages: install → lint → test → coverage → sonarcloud + build. [CI_REPORT.md](CI_REPORT.md).
+Cada push a `main` ejecuta el pipeline de GitHub Actions con 6 stages: install → lint → test → coverage → sonarcloud + build. [CI_REPORT.md](CI_REPORT.md)
