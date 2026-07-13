@@ -10,7 +10,6 @@ API REST de gestión de inventario hecha con Flask para el mini-proyecto de CI. 
 │   ├── unit/             # Tests unitarios de la lógica de negocio (49 tests)
 │   └── integration/      # Tests de integración de endpoints HTTP (21 tests)
 ├── config/               # Configuración por entorno
-├── docs/                 # Guía de setup y guion del video
 ├── .github/workflows/    # Pipeline CI (ci.yml)
 ├── htmlcov/              # Reporte HTML de cobertura (evidencia)
 └── CI_REPORT.md          # Documentación del pipeline y métricas
